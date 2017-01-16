@@ -1,0 +1,80 @@
+buildscript {
+    repositories {
+//        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+//apply plugin: 'com.google.protobuf'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        applicationId "com.android.launcher3"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testApplicationId "com.android.launcher3.tests"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+    }
+    sourceSets {
+        main {
+            res.srcDirs = ['res', 'WallpaperPicker/res']
+            java.srcDirs = ['src', 'WallpaperPicker/src']
+            manifest.srcFile 'AndroidManifest.xml'
+//            proto.srcDirs 'protos/'
+
+        }
+
+        androidTest {
+            java.srcDirs = ['tests/src']
+            res.srcDirs = ['tests/res']
+            manifest.srcFile "tests/AndroidManifest.xml"
+        }
+    }
+
+    lintOptions{
+        abortOnError false
+    }
+}
+
+repositories {
+//    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support:recyclerview-v7:25.0.0'
+    compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-2'
+    testCompile 'junit:junit:4.12'
+//    androidTestCompile 'com.android.support.test:runner:0.5'
+//    androidTestCompile('com.android.support.test:runner:0.5') {
+//        // Necessary if your app targets Marshmallow (since the test runner
+//        // hasn't moved to Marshmallow yet)
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//    }
+    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+}
+
+//protobuf {
+//    // Configure the protoc executable
+//    protoc {
+////        artifact = 'com.google.protobuf:protoc:3.0.0-alpha-3'
+//    }
+//}
