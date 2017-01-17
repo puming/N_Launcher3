@@ -27,7 +27,7 @@ public final class FeatureFlags {
 
     private FeatureFlags() {}
 
-    public static boolean IS_DEV_BUILD = true;  //puming amend
+    public static boolean IS_DEV_BUILD = false;
     public static boolean IS_ALPHA_BUILD = true;    //puming amend
     public static boolean IS_RELEASE_BUILD = true;
 
