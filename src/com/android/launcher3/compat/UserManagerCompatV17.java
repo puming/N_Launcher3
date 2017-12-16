@@ -39,6 +39,7 @@ public class UserManagerCompatV17 extends UserManagerCompatV16 {
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
     }
 
+    @Override
     public long getSerialNumberForUser(UserHandleCompat user) {
         synchronized (this) {
             if (mUserToSerialMap != null) {
@@ -49,6 +50,7 @@ public class UserManagerCompatV17 extends UserManagerCompatV16 {
         return mUserManager.getSerialNumberForUser(user.getUser());
     }
 
+    @Override
     public UserHandleCompat getUserForSerialNumber(long serialNumber) {
         synchronized (this) {
             if (mUsers != null) {

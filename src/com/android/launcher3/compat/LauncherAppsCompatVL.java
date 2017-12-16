@@ -46,8 +46,9 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         mLauncherApps = (LauncherApps) context.getSystemService("launcherapps");
     }
 
+    @Override
     public List<LauncherActivityInfoCompat> getActivityList(String packageName,
-            UserHandleCompat user) {
+                                                            UserHandleCompat user) {
         List<LauncherActivityInfo> list = mLauncherApps.getActivityList(packageName,
                 user.getUser());
         if (list.size() == 0) {
@@ -61,6 +62,7 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         return compatList;
     }
 
+    @Override
     public LauncherActivityInfoCompat resolveActivity(Intent intent, UserHandleCompat user) {
         LauncherActivityInfo activity = mLauncherApps.resolveActivity(intent, user.getUser());
         if (activity != null) {
@@ -70,15 +72,18 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         }
     }
 
+    @Override
     public void startActivityForProfile(ComponentName component, UserHandleCompat user,
-            Rect sourceBounds, Bundle opts) {
+                                        Rect sourceBounds, Bundle opts) {
         mLauncherApps.startMainActivity(component, user.getUser(), sourceBounds, opts);
     }
 
+    @Override
     public void showAppDetailsForProfile(ComponentName component, UserHandleCompat user) {
         mLauncherApps.startAppDetailsActivity(component, user.getUser(), null, null);
     }
 
+    @Override
     public void addOnAppsChangedCallback(LauncherAppsCompat.OnAppsChangedCallbackCompat callback) {
         WrappedCallback wrappedCallback = new WrappedCallback(callback);
         synchronized (mCallbacks) {
@@ -87,6 +92,7 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         mLauncherApps.registerCallback(wrappedCallback);
     }
 
+    @Override
     public void removeOnAppsChangedCallback(
             LauncherAppsCompat.OnAppsChangedCallbackCompat callback) {
         WrappedCallback wrappedCallback = null;
@@ -98,14 +104,17 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         }
     }
 
+    @Override
     public boolean isPackageEnabledForProfile(String packageName, UserHandleCompat user) {
         return mLauncherApps.isPackageEnabled(packageName, user.getUser());
     }
 
+    @Override
     public boolean isActivityEnabledForProfile(ComponentName component, UserHandleCompat user) {
         return mLauncherApps.isActivityEnabled(component, user.getUser());
     }
 
+    @Override
     public boolean isPackageSuspendedForProfile(String packageName, UserHandleCompat user) {
         return false;
     }
@@ -117,32 +126,39 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
             mCallback = callback;
         }
 
+        @Override
         public void onPackageRemoved(String packageName, UserHandle user) {
             mCallback.onPackageRemoved(packageName, UserHandleCompat.fromUser(user));
         }
 
+        @Override
         public void onPackageAdded(String packageName, UserHandle user) {
             mCallback.onPackageAdded(packageName, UserHandleCompat.fromUser(user));
         }
 
+        @Override
         public void onPackageChanged(String packageName, UserHandle user) {
             mCallback.onPackageChanged(packageName, UserHandleCompat.fromUser(user));
         }
 
+        @Override
         public void onPackagesAvailable(String[] packageNames, UserHandle user, boolean replacing) {
             mCallback.onPackagesAvailable(packageNames, UserHandleCompat.fromUser(user), replacing);
         }
 
+        @Override
         public void onPackagesUnavailable(String[] packageNames, UserHandle user,
-                boolean replacing) {
+                                          boolean replacing) {
             mCallback.onPackagesUnavailable(packageNames, UserHandleCompat.fromUser(user),
                     replacing);
         }
 
+        @Override
         public void onPackagesSuspended(String[] packageNames, UserHandle user) {
             mCallback.onPackagesSuspended(packageNames, UserHandleCompat.fromUser(user));
         }
 
+        @Override
         public void onPackagesUnsuspended(String[] packageNames, UserHandle user) {
             mCallback.onPackagesUnsuspended(packageNames, UserHandleCompat.fromUser(user));
         }

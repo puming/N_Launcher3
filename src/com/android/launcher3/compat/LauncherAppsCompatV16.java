@@ -151,6 +151,7 @@ public class LauncherAppsCompatV16 extends LauncherAppsCompat {
     }
 
     @Thunk class PackageMonitor extends BroadcastReceiver {
+        @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             final UserHandleCompat user = UserHandleCompat.myUserHandle();

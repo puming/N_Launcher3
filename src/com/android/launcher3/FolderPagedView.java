@@ -134,7 +134,9 @@ public class FolderPagedView extends PagedView {
                 } else if (mGridCountY < mMaxCountY) {
                     mGridCountY++;
                 }
-                if (mGridCountY == 0) mGridCountY++;
+                if (mGridCountY == 0) {
+                    mGridCountY++;
+                }
             } else if ((mGridCountY - 1) * mGridCountX >= count && mGridCountY >= mGridCountX) {
                 mGridCountY = Math.max(0, mGridCountY - 1);
             } else if ((mGridCountX - 1) * mGridCountY >= count) {
