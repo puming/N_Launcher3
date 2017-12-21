@@ -129,8 +129,8 @@ public abstract class BaseContainerView extends FrameLayout implements Insettabl
 
         InsetDrawable background = new InsetDrawable(mRevealDrawable,
                 padding.left, 0, padding.right, 0);
-        mRevealView.setBackground(background.getConstantState().newDrawable());
-        mContent.setBackground(background);
+//        mRevealView.setBackground(background.getConstantState().newDrawable());
+//        mContent.setBackground(background);
 
         // We let the content have a intent background, but still have full width.
         // This allows the scroll bar to be used responsive outside the background bounds as well.
