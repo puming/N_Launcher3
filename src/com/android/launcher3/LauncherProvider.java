@@ -398,6 +398,7 @@ public class LauncherProvider extends ContentProvider {
 
             final boolean usingExternallyProvidedLayout = loader != null;
             if (loader == null) {
+                Log.d(TAG, "loadDefaultFavoritesIfNecessary: getDefaultLayoutParser");
                 loader = getDefaultLayoutParser();
             }
 
@@ -453,6 +454,7 @@ public class LauncherProvider extends ContentProvider {
     private DefaultLayoutParser getDefaultLayoutParser() {
         int defaultLayout = LauncherAppState.getInstance()
                 .getInvariantDeviceProfile().defaultLayoutId;
+        Log.d(TAG, "getDefaultLayoutParser: defaultLayout="+defaultLayout);
         return new DefaultLayoutParser(getContext(), mOpenHelper.mAppWidgetHost,
                 mOpenHelper, getContext().getResources(), defaultLayout);
     }

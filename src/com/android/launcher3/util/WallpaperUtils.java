@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.android.launcher3.Utilities;
@@ -30,7 +31,7 @@ import com.android.launcher3.Utilities;
  * Utility methods for wallpaper management.
  */
 public final class WallpaperUtils {
-
+    private static final String TAG = "Launcher.WallpaperUtils";
     public static final String WALLPAPER_WIDTH_KEY = "wallpaper.width";
     public static final String WALLPAPER_HEIGHT_KEY = "wallpaper.height";
     public static final float WALLPAPER_SCREENS_SPAN = 2f;
@@ -112,7 +113,9 @@ public final class WallpaperUtils {
             // for the intended parallax effects
             final int defaultWidth, defaultHeight;
             if (res.getConfiguration().smallestScreenWidthDp >= 720) {
-                defaultWidth = (int) (maxDim * wallpaperTravelToScreenWidthRatio(maxDim, minDim));
+//                defaultWidth = (int) (maxDim * wallpaperTravelToScreenWidthRatio(maxDim, minDim));
+                Log.d(TAG, "getDefaultWallpaperSize: smallestScreenWidthDp="+res.getConfiguration().smallestScreenWidthDp);
+                defaultWidth = Math.max((int) (minDim * WALLPAPER_SCREENS_SPAN), maxDim);
                 defaultHeight = maxDim;
             } else {
                 defaultWidth = Math.max((int) (minDim * WALLPAPER_SCREENS_SPAN), maxDim);

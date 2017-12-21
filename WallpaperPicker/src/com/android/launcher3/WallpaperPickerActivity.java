@@ -24,8 +24,10 @@ import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -34,6 +36,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
@@ -41,6 +45,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -48,9 +53,11 @@ import android.os.Bundle;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ActionMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -333,8 +340,11 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
             mThumb = thumb;
         }
         @Override
-        public void onClick(WallpaperPickerActivity a) {
+        public void onClick(final WallpaperPickerActivity a) {
             CropView c = a.getCropView();
+            int cWidth = c.getWidth();
+            int cHeight = c.getHeight();
+            Log.d(TAG, "onClick: cWidth="+cWidth+"\tcHeight="+cHeight);
             Drawable defaultWallpaper = WallpaperManager.getInstance(a.getContext())
                     .getBuiltInDrawable(c.getWidth(), c.getHeight(), false, 0.5f, 0.5f);
             if (defaultWallpaper == null) {
@@ -342,11 +352,69 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
                 c.setTileSource(null, null);
                 return;
             }
+            int intrinsicHeight = defaultWallpaper.getIntrinsicHeight();
+            int intrinsicWidth = defaultWallpaper.getIntrinsicWidth();
+            Log.d(TAG, "onClick: intrinsicHeight="+intrinsicHeight+"\tintrinsicWidth="+intrinsicWidth);
+            int minimumHeight = defaultWallpaper.getMinimumHeight();
+            int minimumWidth = defaultWallpaper.getMinimumWidth();
+            Log.d(TAG, "onClick: minimumHeight="+minimumHeight+"\tminimumWidth="+minimumWidth);
+            int changingConfigurations = defaultWallpaper.getChangingConfigurations();
+            int layoutDirection = defaultWallpaper.getLayoutDirection();
+            Log.d(TAG, "onClick: changingConfigurations="+changingConfigurations+"\tlayoutDirection="+layoutDirection);
+            //full drawable
+            if(a.getResources().getConfiguration().orientation== Configuration.ORIENTATION_PORTRAIT&&false){
+                Log.d(TAG, "onClick: Configuration.ORIENTATION_PORTRAIT");
+                if(intrinsicHeight!=cHeight || intrinsicWidth!=cWidth){
+                    intrinsicHeight=cHeight;
+                    intrinsicWidth=cWidth;
+                }
+                Bitmap.Config config =
+                        defaultWallpaper.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                                : Bitmap.Config.RGB_565;
+                Bitmap bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, config);
+                Canvas canvas = new Canvas(bitmap);
+//                canvas.translate();
+//                canvas.scale();
+                Paint paint = new Paint();
+                paint.setFlags(Paint.FILTER_BITMAP_FLAG);
+                canvas.drawBitmap(bitmap,0,0, paint);
+
+                defaultWallpaper.setBounds(0, 0, intrinsicWidth, intrinsicHeight);
+                defaultWallpaper.draw(canvas);
+
+                DisplayMetrics dm = a.getResources().getDisplayMetrics();
+                int mScreenWidth = dm.widthPixels;//屏幕宽
+                int mScreenHeight = dm.heightPixels;//屏幕高
+                Bitmap fullBitmap = Bitmap.createScaledBitmap(bitmap, mScreenWidth, mScreenHeight, true);
+                Log.d(TAG, "onClick: fullBitmap.getWidth()="+fullBitmap.getWidth()+"fullBitmap.getHeight()="+fullBitmap.getHeight());
+
+                defaultWallpaper = new BitmapDrawable(fullBitmap);
+                Log.d(TAG, "onClick: defaultWallpaper.getIntrinsicWidth()="+defaultWallpaper.getIntrinsicWidth()+
+                        "defaultWallpaper.getIntrinsicHeight()="+defaultWallpaper.getIntrinsicHeight());
+            }
 
             LoadRequest req = new LoadRequest();
             req.moveToLeft = false;
             req.touchEnabled = false;
-            req.scaleAndOffsetProvider = new CropViewScaleAndOffsetProvider();
+            req.scaleAndOffsetProvider = new CropViewScaleAndOffsetProvider(){
+
+                @Override
+                public float getScale(Point wallpaperSize, RectF crop) {
+                    Log.d(TAG, "getScale: wallpaperSize.x="+wallpaperSize.x+"\twallpaperSize.y="+wallpaperSize.y);
+                    Log.d(TAG, "getScale: crop.width()="+crop.width()+"\tcrop.height()="+crop.height());
+                    Log.d(TAG, "getScale: crop.left="+crop.left+"\tcrop.top="+crop.top+"\tcrop.right="+crop.right+"\tcrop.bottom="+crop.bottom);
+                    float v = wallpaperSize.x / crop.width();
+                    Log.d(TAG, "getScale: v="+v);
+                    return 1.6f;
+                }
+
+                @Override
+                public float getParallaxOffset() {
+                    float wallpaperParallaxOffset = a.getWallpaperParallaxOffset();
+                    Log.d(TAG, "getParallaxOffset: wallpaperParallaxOffset="+wallpaperParallaxOffset);
+                    return 1.0f;
+                }
+            };
             req.result = new DrawableTileSource(a.getContext(),
                     defaultWallpaper, DrawableTileSource.MAX_PREVIEW_SIZE);
             a.onLoadRequestComplete(req, true);
@@ -625,8 +693,10 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
                     int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Log.d(TAG, "onLayoutChange: ");
                 if ((right - left) > 0 && (bottom - top) > 0) {
                     if (mSelectedIndex >= 0 && mSelectedIndex < mWallpapersView.getChildCount()) {
+                        Log.d(TAG, "onLayoutChange: mSelectedIndex="+mSelectedIndex);
                         mThumbnailOnClickListener.onClick(
                                 mWallpapersView.getChildAt(mSelectedIndex));
                         setSystemWallpaperVisiblity(false);
@@ -861,6 +931,9 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
             if (addLongPressHandler) {
                 addLongPressHandler(thumbnail);
             }
+            if(i==1){
+                Log.d(TAG, "populateWallpapersFromAdapter: defwallpaper");
+            }
             thumbnail.setOnClickListener(mThumbnailOnClickListener);
         }
     }
@@ -1020,10 +1093,10 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         info.setView(pickedImageThumbnail);
         addLongPressHandler(pickedImageThumbnail);
         updateTileIndices();
-        pickedImageThumbnail.setOnClickListener(mThumbnailOnClickListener);
-        if (!fromRestore) {
-            mThumbnailOnClickListener.onClick(pickedImageThumbnail);
-        }
+//        pickedImageThumbnail.setOnClickListener(mThumbnailOnClickListener);
+//        if (!fromRestore) {
+//            mThumbnailOnClickListener.onClick(pickedImageThumbnail);
+//        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

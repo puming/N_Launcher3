@@ -38,6 +38,7 @@ public class DeferredHandler {
     private Impl mHandler = new Impl();
 
     @Thunk class Impl extends Handler implements MessageQueue.IdleHandler {
+        @Override
         public void handleMessage(Message msg) {
             Runnable r;
             synchronized (mQueue) {
@@ -52,6 +53,7 @@ public class DeferredHandler {
             }
         }
 
+        @Override
         public boolean queueIdle() {
             handleMessage(null);
             return false;
@@ -65,6 +67,7 @@ public class DeferredHandler {
             mRunnable = r;
         }
 
+        @Override
         public void run() {
             mRunnable.run();
         }

@@ -430,8 +430,10 @@ public class LauncherModel extends BroadcastReceiver
 
         // Process the newly added applications and add them to the database first
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 runOnMainThread(new Runnable() {
+                    @Override
                     public void run() {
                         Callbacks cb = getCallback();
                         if (callbacks == cb && cb != null) {
@@ -1255,6 +1257,7 @@ public class LauncherModel extends BroadcastReceiver
 
     @Override
     public void onPackageChanged(String packageName, UserHandleCompat user) {
+        Log.d(TAG, "onPackageChanged: ");
         int op = PackageUpdatedTask.OP_UPDATE;
         enqueuePackageUpdated(new PackageUpdatedTask(op, new String[]{packageName},
                 user));
@@ -1262,6 +1265,7 @@ public class LauncherModel extends BroadcastReceiver
 
     @Override
     public void onPackageRemoved(String packageName, UserHandleCompat user) {
+        Log.d(TAG, "onPackageRemoved: ");
         int op = PackageUpdatedTask.OP_REMOVE;
         enqueuePackageUpdated(new PackageUpdatedTask(op, new String[]{packageName},
                 user));
@@ -1269,6 +1273,7 @@ public class LauncherModel extends BroadcastReceiver
 
     @Override
     public void onPackageAdded(String packageName, UserHandleCompat user) {
+        Log.d(TAG, "onPackageAdded: ");
         int op = PackageUpdatedTask.OP_ADD;
         enqueuePackageUpdated(new PackageUpdatedTask(op, new String[]{packageName},
                 user));
@@ -1277,6 +1282,7 @@ public class LauncherModel extends BroadcastReceiver
     @Override
     public void onPackagesAvailable(String[] packageNames, UserHandleCompat user,
                                     boolean replacing) {
+        Log.d(TAG, "onPackagesAvailable: ");
         enqueuePackageUpdated(
                 new PackageUpdatedTask(PackageUpdatedTask.OP_UPDATE, packageNames, user));
     }
@@ -1284,6 +1290,7 @@ public class LauncherModel extends BroadcastReceiver
     @Override
     public void onPackagesUnavailable(String[] packageNames, UserHandleCompat user,
                                       boolean replacing) {
+        Log.d(TAG, "onPackagesUnavailable: ");
         if (!replacing) {
             enqueuePackageUpdated(new PackageUpdatedTask(
                     PackageUpdatedTask.OP_UNAVAILABLE, packageNames,
@@ -1293,6 +1300,7 @@ public class LauncherModel extends BroadcastReceiver
 
     @Override
     public void onPackagesSuspended(String[] packageNames, UserHandleCompat user) {
+        Log.d(TAG, "onPackagesSuspended: ");
         enqueuePackageUpdated(new PackageUpdatedTask(
                 PackageUpdatedTask.OP_SUSPEND, packageNames,
                 user));
@@ -1300,6 +1308,7 @@ public class LauncherModel extends BroadcastReceiver
 
     @Override
     public void onPackagesUnsuspended(String[] packageNames, UserHandleCompat user) {
+        Log.d(TAG, "onPackagesUnsuspended: ");
         enqueuePackageUpdated(new PackageUpdatedTask(
                 PackageUpdatedTask.OP_UNSUSPEND, packageNames,
                 user));
@@ -2834,6 +2843,7 @@ public class LauncherModel extends BroadcastReceiver
             @SuppressWarnings("unchecked") final ArrayList<AppInfo> list
                     = (ArrayList<AppInfo>) mBgAllAppsList.data.clone();
             Runnable r = new Runnable() {
+                @Override
                 public void run() {
                     final long t = SystemClock.uptimeMillis();
                     final Callbacks callbacks = tryGetCallbacks(oldCallbacks);
@@ -3120,7 +3130,7 @@ public class LauncherModel extends BroadcastReceiver
                     }
                     for (int i = 0; i < N; i++) {
                         if (DEBUG_LOADERS) {
-                            Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
+                            Log.d(TAG, "OP_REMOVE:mAllAppsList.removePackage " + packages[i]);
                         }
                         mIconCache.removeIconsForPkg(packages[i], mUser);
                     }
@@ -3128,7 +3138,9 @@ public class LauncherModel extends BroadcastReceiver
                 }
                 case OP_UNAVAILABLE:
                     for (int i = 0; i < N; i++) {
-                        if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
+                        if (DEBUG_LOADERS) {
+                            Log.d(TAG, "OP_UNAVAILABLE:mAllAppsList.removePackage " + packages[i]);
+                        }
                         mBgAllAppsList.removePackage(packages[i], mUser);
                         mApp.getWidgetCache().removePackage(packages[i], mUser);
                     }
@@ -3139,7 +3151,9 @@ public class LauncherModel extends BroadcastReceiver
                     flagOp = mOp == OP_SUSPEND ?
                             FlagOp.addFlag(ShortcutInfo.FLAG_DISABLED_SUSPENDED) :
                             FlagOp.removeFlag(ShortcutInfo.FLAG_DISABLED_SUSPENDED);
-                    if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.(un)suspend " + N);
+                    if (DEBUG_LOADERS) {
+                        Log.d(TAG, "mAllAppsList.(un)suspend " + N);
+                    }
                     mBgAllAppsList.updatePackageFlags(pkgFilter, mUser, flagOp);
                     break;
                 case OP_USER_AVAILABILITY_CHANGE:

@@ -30,6 +30,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.app.WallpaperManager;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -55,8 +56,10 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -98,6 +101,8 @@ import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.PagedView.PageSwitchListener;
 import com.android.launcher3.allapps.AllAppsContainerView;
 import com.android.launcher3.allapps.DefaultAppSearchController;
+import com.android.launcher3.blur.BlurLruCache;
+import com.android.launcher3.blur.FastBlur;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
@@ -210,6 +215,7 @@ public class Launcher extends Activity
     private static final String QSB_WIDGET_PROVIDER = "qsb_widget_provider";
 
     public static final String USER_HAS_MIGRATED = "launcher.user_migrated_from_old_data";
+    private WallpaperManager mWallpaperManager;
 
     /**
      * The different states that Launcher can be in.
@@ -439,6 +445,8 @@ public class Launcher extends Activity
             mLauncherCallbacks.preOnCreate();
         }
 
+        mWallpaperManager = (WallpaperManager) getSystemService(Context.WALLPAPER_SERVICE);
+
         super.onCreate(savedInstanceState);
 
         LauncherAppState app = LauncherAppState.getInstance();
@@ -545,7 +553,6 @@ public class Launcher extends Activity
 
     private LauncherCallbacks mLauncherCallbacks;
 
-    @Override
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         if (mLauncherCallbacks != null) {
@@ -1159,7 +1166,6 @@ public class Launcher extends Activity
 
         /**
          * Called when the launcher is ready to use the overlay
-         *
          * @param callbacks A set of callbacks provided by Launcher in relation to the overlay
          */
         public void setOverlayCallbacks(LauncherOverlayCallbacks callbacks);
@@ -1400,6 +1406,8 @@ public class Launcher extends Activity
 
         // Setup Apps and Widgets
         mAppsView = (AllAppsContainerView) findViewById(R.id.apps_view);
+        //puming add
+        mAppsView.getViewTreeObserver().addOnPreDrawListener(AllAppsListViewOnPreListener);
         mWidgetsView = (WidgetsContainerView) findViewById(R.id.widgets_view);
         if (mLauncherCallbacks != null && mLauncherCallbacks.getAllAppsSearchBarController() != null) {
             mAppsView.setSearchBarController(mLauncherCallbacks.getAllAppsSearchBarController());
@@ -1730,6 +1738,7 @@ public class Launcher extends Activity
                 // apps is nice and speedy.
                 observer.addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
                     private boolean mStarted = false;
+
 
                     @Override
                     public void onDraw() {
@@ -2557,7 +2566,6 @@ public class Launcher extends Activity
      *
      * @param v The view representing the clicked shortcut.
      */
-    @Override
     public void onClick(View v) {
         // Make sure that rogue clicks don't get through while allapps is launching, or after the
         // view has detached (it's possible for this to happen if the view is removed mid touch).
@@ -2600,7 +2608,6 @@ public class Launcher extends Activity
         }
     }
 
-    @Override
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouch(View v, MotionEvent event) {
         return false;
@@ -2653,6 +2660,7 @@ public class Launcher extends Activity
     protected void onClickAllAppsButton(View v) {
         if (LOGD) Log.d(TAG, "onClickAllAppsButton");
         if (!isAppsViewVisible()) {
+            setAllAppsViewBackground();
             showAppsView(true /* animated */, false /* resetListToTop */,
                     true /* updatePredictedApps */, false /* focusSearchBar */);
 
@@ -2661,6 +2669,82 @@ public class Launcher extends Activity
             }
         }
     }
+
+    //puming add
+    private BlurLruCache mLruCache;
+    public BlurLruCache getLruCache(){
+        int maxMemory = (int)Runtime.getRuntime().maxMemory() / 16;
+        if (mLruCache==null) {
+            mLruCache=new BlurLruCache(maxMemory);
+        }
+        return mLruCache;
+    }
+
+    /**
+     * 缓存Bitmap到内存，减少创建。
+     * @param bitmap
+     * puming1 add
+     */
+    public void setCacheBitmap(Bitmap bitmap){
+        getLruCache().put("bgCache",bitmap);
+    }
+
+    /**
+     * 根据壁纸创建Bitmap
+     * @return Bitmap
+     * puming1 add
+     */
+    public Bitmap getBitmap(){
+        Drawable currWallpaper = mWallpaperManager.getDrawable();
+        if(currWallpaper != null ) {
+            Bitmap bgCache = FastBlur.drawableToBitmap(mDeviceProfile.isLandscape, currWallpaper, mAppsView);
+            if (bgCache != null) {
+                bgCache = FastBlur.doBlurForRadius(mDeviceProfile.isLandscape, bgCache, mAppsView);
+            }
+            mWallpaperManager.forgetLoadedWallpaper();
+            currWallpaper.setCallback(null);
+            return bgCache;
+        }
+        return null;
+    }
+
+    //puming1 amend
+    public void setAllAppsViewBackground() {
+        Bitmap bgCache = getLruCache().get("bgCache");
+        if (bgCache == null) {
+            bgCache = getBitmap();
+            setCacheBitmap(bgCache);
+        }
+        /*Drawable currWallpaper = mWallpaperManager.getDrawable();
+        if(currWallpaper != null ){
+            Bitmap bgCache = FastBlur.drawableToBitmap(mDeviceProfile.isLandscape,currWallpaper,mAppsView);
+            if(bgCache!=null){
+                bgCache = FastBlur.doBlurForRadius(mDeviceProfile.isLandscape,bgCache, mAppsView);
+            }*/
+        if (bgCache != null) {
+            Bitmap bg = ((BitmapDrawable) getResources().getDrawable(R.drawable.allapps_alphabg)).getBitmap();
+            Drawable[] draws = new Drawable[2];
+            draws[0] = new BitmapDrawable(bgCache);
+            draws[1] = new BitmapDrawable(bg);
+            LayerDrawable layer = new LayerDrawable(draws);
+            layer.setLayerInset(0, 0, 0, 0, 0);
+            layer.setLayerInset(1, 0, 0, 0, 0);
+            mAppsView.setBackground(layer);
+        }
+//        }
+    }
+
+    //puming add
+    private ViewTreeObserver.OnPreDrawListener AllAppsListViewOnPreListener = new ViewTreeObserver.OnPreDrawListener() {
+        @Override
+        public boolean onPreDraw() {
+            mAppsView.getViewTreeObserver().removeOnPreDrawListener(this);
+            if (isAppsViewVisible()) {
+                setAllAppsViewBackground();
+            }
+            return false;
+        }
+    };
 
     protected void onLongClickAllAppsButton(View v) {
         if (LOGD) Log.d(TAG, "onLongClickAllAppsButton");
@@ -3818,7 +3902,6 @@ public class Launcher extends Activity
      * @return true if we are currently paused.  The caller might be able to
      * skip some work in that case since we will come back again.
      */
-    @Override
     public boolean setLoadOnResume() {
         if (mPaused) {
             if (LOGD) Log.d(TAG, "setLoadOnResume");
@@ -3846,7 +3929,6 @@ public class Launcher extends Activity
      * <p>
      * Implementation of the method from LauncherModel.Callbacks.
      */
-    @Override
     public void startBinding() {
         setWorkspaceLoading(true);
 
@@ -3896,7 +3978,6 @@ public class Launcher extends Activity
                               final ArrayList<ItemInfo> addAnimated,
                               final ArrayList<AppInfo> addedApps) {
         Runnable r = new Runnable() {
-            @Override
             public void run() {
                 bindAppsAdded(newScreens, addNotAnimated, addAnimated, addedApps);
             }
@@ -4347,6 +4428,7 @@ public class Launcher extends Activity
     @Thunk
     ArrayList<AppInfo> mTmpAppsList;
     private Runnable mBindAllApplicationsRunnable = new Runnable() {
+        @Override
         public void run() {
             bindAllApplications(mTmpAppsList);
             mTmpAppsList = null;
@@ -4492,6 +4574,7 @@ public class Launcher extends Activity
     @Override
     public void bindAppInfosRemoved(final ArrayList<AppInfo> appInfos) {
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 bindAppInfosRemoved(appInfos);
             }
@@ -4733,8 +4816,7 @@ public class Launcher extends Activity
         editor.apply();
     }
 
-    @Thunk
-    void showFirstRunClings() {
+    @Thunk void showFirstRunClings() {
         // The two first run cling paths are mutually exclusive, if the launcher is preinstalled
         // on the device, then we always show the first run cling experience (or if there is no
         // launcher2). Otherwise, we prompt the user upon started for migration
@@ -4797,7 +4879,7 @@ public class Launcher extends Activity
 
     // TODO: This method should be a part of LauncherSearchCallback
     public ItemInfo createShortcutDragInfo(Intent shortcutIntent, CharSequence caption,
-                                           Bitmap icon) {
+            Bitmap icon) {
         return new ShortcutInfo(shortcutIntent, caption, caption, icon,
                 UserHandleCompat.myUserHandle());
     }
@@ -4901,7 +4983,7 @@ public class Launcher extends Activity
             sDateStamp.setTime(System.currentTimeMillis());
             synchronized (sDumpLogs) {
                 sDumpLogs.add(sDateFormat.format(sDateStamp) + ": " + tag + ", " + log
-                        + (e == null ? "" : (", Exception: " + e)));
+                    + (e == null ? "" : (", Exception: " + e)));
             }
         }
     }

@@ -49,3 +49,8 @@ LauncherMode 异步loadWorkspace
 -->LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary();
 loadDefaultFavoritesIfNecessary-->mOpenHelper.loadFavorites
 以上过程是加载Launcher3内部默认布局。
+
+## 卸载应用的逻辑处理
+
+UninstallDropTarget.startUninstallActivity
+

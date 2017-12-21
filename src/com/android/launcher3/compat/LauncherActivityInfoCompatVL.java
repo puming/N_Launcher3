@@ -32,22 +32,27 @@ public class LauncherActivityInfoCompatVL extends LauncherActivityInfoCompat {
         mLauncherActivityInfo = launcherActivityInfo;
     }
 
+    @Override
     public ComponentName getComponentName() {
         return mLauncherActivityInfo.getComponentName();
     }
 
+    @Override
     public UserHandleCompat getUser() {
         return UserHandleCompat.fromUser(mLauncherActivityInfo.getUser());
     }
 
+    @Override
     public CharSequence getLabel() {
         return mLauncherActivityInfo.getLabel();
     }
 
+    @Override
     public Drawable getIcon(int density) {
         return mLauncherActivityInfo.getIcon(density);
     }
 
+    @Override
     public ApplicationInfo getApplicationInfo() {
         return mLauncherActivityInfo.getApplicationInfo();
     }
