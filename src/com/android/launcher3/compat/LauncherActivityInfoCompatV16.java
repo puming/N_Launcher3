@@ -43,14 +43,17 @@ public class LauncherActivityInfoCompatV16 extends LauncherActivityInfoCompat {
         mPm = context.getPackageManager();
     }
 
+    @Override
     public ComponentName getComponentName() {
         return mComponentName;
     }
 
+    @Override
     public UserHandleCompat getUser() {
         return UserHandleCompat.myUserHandle();
     }
 
+    @Override
     public CharSequence getLabel() {
         try {
             return mResolveInfo.loadLabel(mPm);
@@ -60,6 +63,7 @@ public class LauncherActivityInfoCompatV16 extends LauncherActivityInfoCompat {
         }
     }
 
+    @Override
     public Drawable getIcon(int density) {
         int iconRes = mResolveInfo.getIconResource();
         Resources resources = null;
@@ -83,10 +87,12 @@ public class LauncherActivityInfoCompatV16 extends LauncherActivityInfoCompat {
         return icon;
     }
 
+    @Override
     public ApplicationInfo getApplicationInfo() {
         return mActivityInfo.applicationInfo;
     }
 
+    @Override
     public long getFirstInstallTime() {
         try {
             PackageInfo info = mPm.getPackageInfo(mActivityInfo.packageName, 0);

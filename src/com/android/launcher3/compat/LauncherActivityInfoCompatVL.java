@@ -57,6 +57,7 @@ public class LauncherActivityInfoCompatVL extends LauncherActivityInfoCompat {
         return mLauncherActivityInfo.getApplicationInfo();
     }
 
+    @Override
     public long getFirstInstallTime() {
         return mLauncherActivityInfo.getFirstInstallTime();
     }

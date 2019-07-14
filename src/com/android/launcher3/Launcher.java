@@ -2566,6 +2566,7 @@ public class Launcher extends Activity
      *
      * @param v The view representing the clicked shortcut.
      */
+    @Override
     public void onClick(View v) {
         // Make sure that rogue clicks don't get through while allapps is launching, or after the
         // view has detached (it's possible for this to happen if the view is removed mid touch).
@@ -2640,6 +2641,7 @@ public class Launcher extends Activity
             final String packageName = info.providerName.getPackageName();
             showBrokenAppInstallDialog(packageName,
                     new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(DialogInterface dialog, int id) {
                             startActivitySafely(v, LauncherModel.getMarketIntent(packageName), info);
                         }
@@ -3904,7 +3906,9 @@ public class Launcher extends Activity
      */
     public boolean setLoadOnResume() {
         if (mPaused) {
-            if (LOGD) Log.d(TAG, "setLoadOnResume");
+            if (LOGD) {
+                Log.d(TAG, "setLoadOnResume");
+            }
             mOnResumeNeedsLoad = true;
             return true;
         } else {
@@ -4019,6 +4023,7 @@ public class Launcher extends Activity
     public void bindItems(final ArrayList<ItemInfo> shortcuts, final int start, final int end,
                           final boolean forceAnimateIcons) {
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 bindItems(shortcuts, start, end, forceAnimateIcons);
             }
@@ -4996,9 +5001,12 @@ public class Launcher extends Activity
         return sCustomAppWidgets;
     }
 
+    @Override
+    @SuppressLint("StaticFieldLeak")
     public void dumpLogsToLocalData() {
         if (DEBUG_DUMP_LOG) {
             new AsyncTask<Void, Void, Void>() {
+                @Override
                 public Void doInBackground(Void... args) {
                     boolean success = false;
                     sDateStamp.setTime(sRunStart);

@@ -133,6 +133,7 @@ public class AlphabeticIndexCompat {
          * Function is synchronized because underlying routine walks an iterator
          * whose state is maintained inside the index object.
          */
+        @Override
         protected int getBucketIndex(String s) {
             try {
                 return (Integer) mGetBucketIndexMethod.invoke(mAlphabeticIndex, s);
@@ -145,6 +146,7 @@ public class AlphabeticIndexCompat {
         /**
          * Returns the label for the bucket at the given index (as returned by getBucketIndex).
          */
+        @Override
         protected String getBucketLabel(int index) {
             try {
                 return (String) mGetBucketLabelMethod.invoke(mAlphabeticIndex, index);
@@ -199,6 +201,7 @@ public class AlphabeticIndexCompat {
         /**
          * Returns the index of the bucket in which {@param s} should appear.
          */
+        @Override
         protected int getBucketIndex(String s) {
             try {
                 return (Integer) mGetBucketIndexMethod.invoke(mAlphabeticIndex, s);
@@ -211,6 +214,7 @@ public class AlphabeticIndexCompat {
         /**
          * Returns the label for the bucket at the given index
          */
+        @Override
         protected String getBucketLabel(int index) {
             try {
                 return (String) mGetLabelMethod.invoke(

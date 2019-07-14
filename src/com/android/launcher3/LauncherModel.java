@@ -725,6 +725,7 @@ public class LauncherModel extends BroadcastReceiver
         final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         final long itemId = item.id;
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 synchronized (sBgLock) {
                     checkItemInfoLocked(itemId, item, stackTrace);
@@ -1320,7 +1321,9 @@ public class LauncherModel extends BroadcastReceiver
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (DEBUG_RECEIVER) Log.d(TAG, "onReceive intent=" + intent);
+        if (DEBUG_RECEIVER) {
+            Log.d(TAG, "onReceive action=" + intent.getAction());
+        }
 
         final String action = intent.getAction();
         if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {

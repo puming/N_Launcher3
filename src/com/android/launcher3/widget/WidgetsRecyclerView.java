@@ -60,6 +60,7 @@ public class WidgetsRecyclerView extends BaseRecyclerView {
         addOnItemTouchListener(this);
     }
 
+    @Override
     public int getFastScrollerTrackColor(int defaultTrackColor) {
         return Color.WHITE;
     }

@@ -2,9 +2,10 @@ buildscript {
     repositories {
 //        mavenCentral()
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.2.0'
 //        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.0'
     }
 }
@@ -14,7 +15,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "com.android.launcher3"
@@ -55,6 +55,7 @@ android {
 repositories {
 //    mavenCentral()
     jcenter()
+    google()
 }
 
 dependencies {
@@ -62,7 +63,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.0.0'
     compile 'com.android.support:recyclerview-v7:25.0.0'
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-2'
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 //    androidTestCompile 'com.android.support.test:runner:0.5'
 //    androidTestCompile('com.android.support.test:runner:0.5') {
 //        // Necessary if your app targets Marshmallow (since the test runner
