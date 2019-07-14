@@ -69,7 +69,8 @@
 
             <com.android.launcher3.ExtendedEditText
                 android:id="@+id/search_box_input"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="10"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:focusableInTouchMode="true"
@@ -85,6 +86,13 @@
                 android:textColor="#4c4c4c"
                 android:textColorHint="#9c9c9c"
                 android:textSize="16sp" />
+            <ImageButton
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_voice"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </com.android.launcher3.allapps.AllAppsRecyclerViewContainerView>
