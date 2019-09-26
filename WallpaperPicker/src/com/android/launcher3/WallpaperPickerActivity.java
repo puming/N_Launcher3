@@ -544,6 +544,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
     }
 
     // called by onCreate; this is subclassed to overwrite WallpaperCropActivity
+    @Override
     protected void init() {
         setContentView(R.layout.wallpaper_picker);
 
@@ -552,6 +553,8 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
 
         mProgressView = findViewById(R.id.loading);
         mWallpaperScrollContainer = (HorizontalScrollView) findViewById(R.id.wallpaper_scroll_container);
+        mWallpaperScrollContainer.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        mWallpaperScrollContainer.setHorizontalScrollBarEnabled(false);
         mWallpaperStrip = findViewById(R.id.wallpaper_strip);
         mCropView.setTouchCallback(new CropView.TouchCallback() {
             ViewPropertyAnimator mAnim;
